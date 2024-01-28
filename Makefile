@@ -62,6 +62,7 @@ TARGETS += ecr-credential-provider
 TARGETS += fuse3
 TARGETS += gasket-driver
 TARGETS += gvisor
+TARGETS += runu
 TARGETS += hello-world-service
 TARGETS += i915-ucode
 TARGETS += intel-ice-firmware

@@ -1,0 +1,10 @@
+version: v1alpha1
+metadata:
+  name: runu
+  version: "$VERSION"
+  author: Philipp Schöppner
+  description: |
+    This system extension provides runu, a container runtime for unikernels, using containerd's runtime handler.
+  compatibility:
+    talos:
+      version: ">= v1.6.2"

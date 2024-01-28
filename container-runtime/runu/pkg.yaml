@@ -1,0 +1,49 @@
+name: runu
+variant: scratch
+shell: /toolchain/bin/bash
+dependencies:
+  - stage: base
+steps:
+  - sources:
+      - url: https://github.com/unikraft/kraftkit/archive/refs/tags/{{ .RUNU_VERSION }}.tar.gz
+        destination: kraftkit.tar.gz
+        sha256: 5ed877473a2b42703c031b5486b6238006ed8351c8163dfd8c0faa3d1c641e59
+        sha512: 651b9e022d91a59835fdd12af849aeccaba6ebf296905a5865077833c193ed6979e8260fbe482f9af57d9d13af7f6a41b7d0bd76bb4642c8c4a2b00761a5fb22
+    env:
+      GOPATH: /go
+    prepare:
+      - |
+        sed -i 's#$VERSION#{{ .VERSION }}#' /pkg/manifest.yaml
+      - |
+        mkdir -p ${GOPATH}/src/github.com/unikraft/kraftkit
+
+        tar -xzf kraftkit.tar.gz --strip-components=1 -C ${GOPATH}/src/github.com/unikraft/kraftkit
+    build:
+      - |
+        export PATH=${PATH}:${TOOLCHAIN}/go/bin
+        cd ${GOPATH}/src/github.com/unikraft/kraftkit
+
+        if [[ "${ARCH}" == aarch64 ]]; then
+          GOARCH="arm64"
+        else
+          GOARCH="amd64"
+        fi
+
+        # This needs to run natively for each architecture, since runu uses `nsenter` from runc, which uses CGO
+        # We also disable building in docker, since we are already in a container
+        GOARCH=$GOARCH CGO_ENABLED=1 DOCKER="" make runu
+    install:
+      - |
+        mkdir -p /rootfs/usr/local/bin
+
+        cd ${GOPATH}/src/github.com/unikraft/kraftkit
+
+        cp ./dist/runu /rootfs/usr/local/bin/runu
+        chmod +x /rootfs/usr/local/bin/runu
+finalize:
+  - from: /rootfs
+    to: /rootfs
+  - from: /pkg/manifest.yaml
+    to: /
+  - from: /pkg/runu.part
+    to: /rootfs/etc/cri/conf.d/runu.part

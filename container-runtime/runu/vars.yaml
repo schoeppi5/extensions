@@ -1,0 +1,1 @@
+VERSION: "{{ .RUNU_VERSION }}-{{ .BUILD_ARG_TAG }}"
