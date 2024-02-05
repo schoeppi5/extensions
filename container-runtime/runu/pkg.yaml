@@ -31,7 +31,7 @@ steps:
 
         # This needs to run natively for each architecture, since runu uses `nsenter` from runc, which uses CGO
         # We also disable building in docker, since we are already in a container
-        GOARCH=$GOARCH CGO_ENABLED=1 DOCKER="" make runu
+        CGO_CFLAGS="-g -O2 -Werror" CC=gcc GOARCH=$GOARCH CGO_ENABLED=1 DOCKER="" make runu
     install:
       - |
         mkdir -p /rootfs/usr/local/bin
